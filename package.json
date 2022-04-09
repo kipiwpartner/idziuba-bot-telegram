@@ -1,0 +1,25 @@
+{
+  "name": "bit-bot-mod",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://kipiwpartner@bitbucket.org/kipiwpartner/_bot-mod.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://bitbucket.org/kipiwpartner/_bot-mod/issues"
+  },
+  "homepage": "https://bitbucket.org/kipiwpartner/_bot-mod#readme",
+  "dependencies": {
+    "axios": "^0.26.1",
+    "config": "^3.3.7"
+  }
+}
