@@ -21,6 +21,8 @@
   "homepage": "https://bitbucket.org/kipiwpartner/_bot-mod#readme",
   "dependencies": {
     "axios": "^0.26.1",
-    "config": "^3.3.7"
+    "config": "^3.3.7",
+    "dotenv": "^16.0.0",
+    "mongoose": "^6.3.1"
   }
 }

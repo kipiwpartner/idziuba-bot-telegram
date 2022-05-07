@@ -1,6 +1,9 @@
 import config from 'config'
 import axios from 'axios'
-import Logging from "./logging.js";
+import Logging from "./logging.js"
+import Stopwords from "../models/stopwords.js"
+import dotenv from 'dotenv'
+dotenv.config({path : './config.env'})
 
 class Messaging {
     constructor(){
@@ -10,17 +13,29 @@ class Messaging {
         this.symbol_replace = config.get('symbol_replace');
         this.removed_ids = {}
         this.logging = new Logging()
-        this.bot_chat_direct = config.get('bot_chat_direct');
+        this.chat_id_direct = config.get('chat_id_direct');
+    }
+
+    setChatId = async (chat_id) => {
+        let searchQuery = { id_group : chat_id }
+        let grp = await Stopwords.findOne(searchQuery)
+        if (grp) {
+            this.arr_stop_words = grp.stopwords
+        } else {
+            this.arr_stop_words = []
+        }
+    }
+
+    sendMessageHtml = async (msg_html, chat_id) => {
+        return await axios.get(`https://api.telegram.org/bot${this.token}/sendMessage?chat_id=${chat_id}&text=${encodeURI(msg_html)}&parse_mode=html`)
     }
 
     sendChangedMessage = async (obj_message) => {
         try {
             this.logging.loggingSendChangedMessage(obj_message)
             let text = this.changeMessage(obj_message.text)
-            let msg1 = this.template + "<b>" + obj_message.from.first_name + ' ' + obj_message.from.last_name + "</b>" + ': ' + obj_message.text;
-            let msg2 = this.template + "<b>" + obj_message.from.first_name + ' ' + obj_message.from.last_name + "</b>" + ': ' + text;
-            const send_bot = await axios.get(`https://api.telegram.org/bot${this.token}/sendMessage?chat_id=${this.bot_chat_direct}&text=${encodeURI(msg1)}&parse_mode=html`)
-            const resp = await axios.get(`https://api.telegram.org/bot${this.token}/sendMessage?chat_id=${obj_message.chat.id}&text=${encodeURI(msg2)}&parse_mode=html`)
+            let msg_html = this.template + "<b>" + obj_message.from.first_name + ' ' + obj_message.from.last_name + "</b>" + ': ' + text;
+            await this.sendMessageHtml(msg_html, obj_message.chat.id)
             return true
         } catch (err) {
             // Handle Error Here
@@ -29,12 +44,10 @@ class Messaging {
         }
     }
 
-    setChatId = (chat_id) => {
-        if (typeof config.get('arr_stop_words')[chat_id] === 'undefined') {
-            this.arr_stop_words = []
-        } else {
-            this.arr_stop_words = config.get('arr_stop_words')[chat_id]
-        }
+    forwardMessage = async (obj_message) => {
+        let msg_html = "Группа: " + "<b>" + obj_message.chat.title + "</b>";
+        await this.sendMessageHtml(msg_html, this.chat_id_direct)
+        await axios.get(`https://api.telegram.org/bot${this.token}/forwardMessage?chat_id=${this.chat_id_direct}&from_chat_id=${obj_message.chat.id}&message_id=${obj_message.message_id}`)
     }
 
     deleteMessage = async (obj_message) => {
@@ -55,7 +68,6 @@ class Messaging {
 
     getUpdate = async (offset) => {
         try {
-            //console.log("🚀 ~ file: messaging.js ~ Messaging ~ getUpdate ~ ofsfset = ", offset)
             const resp = await axios.get(`https://api.telegram.org/bot${this.token}/getUpdates?offset=${offset}`);
             return resp
         } catch (err) {
