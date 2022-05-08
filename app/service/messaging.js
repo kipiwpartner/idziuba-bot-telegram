@@ -17,17 +17,25 @@ class Messaging {
     }
 
     setChatId = async (chat_id) => {
-        let searchQuery = { id_group : chat_id }
-        let grp = await Stopwords.findOne(searchQuery)
-        if (grp) {
-            this.arr_stop_words = grp.stopwords
-        } else {
+        try {
+            let searchQuery = { chat_id : chat_id }
+            let grp = await Stopwords.findOne(searchQuery)
+            if (grp) {
+                this.arr_stop_words = grp.stopwords
+            } else {
+                this.arr_stop_words = []
+            }
+            return true
+        } catch (err) {
+            // Handle Error Here
             this.arr_stop_words = []
+            console.error(err);
+            return false
         }
     }
 
     sendMessageHtml = async (msg_html, chat_id) => {
-        return await axios.get(`https://api.telegram.org/bot${this.token}/sendMessage?chat_id=${chat_id}&text=${encodeURI(msg_html)}&parse_mode=html`)
+        return axios.get(`https://api.telegram.org/bot${this.token}/sendMessage?chat_id=${chat_id}&text=${encodeURI(msg_html)}&parse_mode=html`)
     }
 
     sendChangedMessage = async (obj_message) => {
