@@ -14,6 +14,7 @@ const getData = async () => {
         const tmp_chat_id = "-789017583"
         const resp = await axios.get(`https://api.telegram.org/bot${token}/getUpdates`)
         await mongoose.connect(process.env.DATABASE_URI, {})
+
         // let searchQuery = { chat_id : tmp_chat_id}
         // let grp = await Stopwords.findOne(searchQuery)
         // if (grp) {
@@ -24,6 +25,7 @@ const getData = async () => {
         //         stopwords: arr_stop_words
         //     });
         // }
+        
         return {
             "update_id": resp.data.result[resp.data.result.length-1].update_id,
         }
