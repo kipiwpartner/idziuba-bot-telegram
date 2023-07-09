@@ -1,18 +1,19 @@
 import config from 'config'
 import axios from 'axios'
-import Logging from "./logging.js"
+import ServiceLogging from "./ServiceLogging.js"
 import Stopwords from "../models/stopwords.js"
 import dotenv from 'dotenv'
 dotenv.config({path : './config.env'})
+import { get } from 'stack-trace';
 
-class Messaging {
+class ServiceMessaging {
     constructor(){
         this.token = config.get('token');
-        this.template = config.get('template');
+        this.msgHtmlTitle = config.get('msgHtmlTitle');
         this.arr_stop_words = [];
         this.symbol_replace = config.get('symbol_replace');
         this.removed_ids = {}
-        this.logging = new Logging()
+        this.logging = new ServiceLogging()
         this.chat_id_direct = config.get('chat_id_direct');
     }
 
@@ -42,7 +43,7 @@ class Messaging {
         try {
             this.logging.loggingSendChangedMessage(obj_message)
             let text = this.changeMessage(obj_message.text)
-            let msg_html = this.template + "<b>" + obj_message.from.first_name + ' ' + obj_message.from.last_name + "</b>" + ': ' + text;
+            let msg_html = this.msgHtmlTitle + "<b>" + obj_message.from.first_name + ' ' + obj_message.from.last_name + "</b>" + ': ' + text;
             await this.sendMessageHtml(msg_html, obj_message.chat.id)
             return true
         } catch (err) {
@@ -54,7 +55,8 @@ class Messaging {
 
     forwardMessage = async (obj_message) => {
         let msg_html = "Группа: " + "<b>" + obj_message.chat.title + "</b>";
-        await this.sendMessageHtml(msg_html, this.chat_id_direct)
+        //await this.sendMessageHtml(msg_html, this.chat_id_direct)
+        console.log(this.removed_ids, " !!E!!");
         await axios.get(`https://api.telegram.org/bot${this.token}/forwardMessage?chat_id=${this.chat_id_direct}&from_chat_id=${obj_message.chat.id}&message_id=${obj_message.message_id}`)
     }
 
@@ -62,7 +64,7 @@ class Messaging {
         try {
             if (typeof this.removed_ids[obj_message.chat.id] === 'undefined') this.removed_ids[obj_message.chat.id] = []
             if (!this.removed_ids[obj_message.chat.id].includes(obj_message.message_id)){
-                const resp = await axios.get(`https://api.telegram.org/bot${this.token}/deleteMessage?chat_id=${obj_message.chat.id}&message_id=${obj_message.message_id}`);
+                await axios.get(`https://api.telegram.org/bot${this.token}/deleteMessage?chat_id=${obj_message.chat.id}&message_id=${obj_message.message_id}`);
                 this.removed_ids[obj_message.chat.id].push(obj_message.message_id)
                 return true
             }
@@ -71,16 +73,6 @@ class Messaging {
             //Handle Error Here
             console.error(err);
             return false
-        }
-    }
-
-    getUpdate = async (offset) => {
-        try {
-            const resp = await axios.get(`https://api.telegram.org/bot${this.token}/getUpdates?offset=${offset}`);
-            return resp
-        } catch (err) {
-            // Handle Error Here
-            console.error(err);
         }
     }
 
@@ -105,4 +97,4 @@ class Messaging {
 
 }
 
-export default Messaging
+export default ServiceMessaging

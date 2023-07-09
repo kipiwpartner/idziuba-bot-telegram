@@ -1,20 +1,26 @@
 import config from 'config'
 
-class Logging {
+class ServiceLogging {
     constructor(){
         this.loggingMessage = config.get('loggingMessage');
     }
 
     loggingSendChangedMessage = (obj) => {
         if (this.loggingMessage){
-            console.log("🚀 ~ file: logging.js ~ Logging ~ loggingMessageConsole", obj)
+            console.log("🚀 ~ loggingSendChangedMessage => ", obj)
         }
     }
     loggingDeleteMessage = (obj) => {
         if (this.loggingMessage){
-            console.log("🚀 ~ file: logging.js ~ Logging ~ loggingMessageConsole", obj)
+            console.log("🚀 ~ loggingDeleteMessage => ", obj)
+        }
+    }
+
+    log = (obj) => {
+        if (this.loggingMessage){
+            console.log(obj)
         }
     }
 }
 
-export default Logging
+export default ServiceLogging
