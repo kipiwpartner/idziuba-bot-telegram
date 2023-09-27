@@ -25,10 +25,7 @@ class ServiceUpdateTelegram {
         }
     }
 
-    
     getUpdateTelegram = async (offset) => {
-        // const tracer = get();
-        // console.log(tracer[0].getFunctionName())
         try {
             const resp = await axios.get(`https://api.telegram.org/bot${this.token}/getUpdates?offset=${offset}`);
             return resp

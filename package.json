@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "repository": {
     "type": "git",
@@ -25,5 +26,11 @@
     "dotenv": "^16.0.0",
     "mongoose": "^6.3.1",
     "stack-trace": "^1.0.0-pre2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "imports": {
+    "#service/*.js": "./service/*.js"
   }
 }
